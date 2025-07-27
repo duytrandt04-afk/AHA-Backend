@@ -4,7 +4,7 @@ from .llm import LLM, LLMResponse
 from app.utils import create_signature_with_doc
 
 class RAGResponse(LLMResponse):
-    context: str = dspy.InputField(description="Context retrieved from the knowledge base")
+    context: List[str] = dspy.InputField(description="Context retrieved from the knowledge base")
 
 class RAG(LLM):
     """Model to generate responses based on the retrieved context."""

@@ -1,9 +1,9 @@
 import dspy
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Tuple
 from app.utils import create_signature_with_doc
 
 class LLMResponse(dspy.Signature):
-    recent_conversations: Optional[str] = dspy.InputField(optional=True, description="Recent conversations")
+    recent_conversations: Optional[List[Tuple[str, str]]] = dspy.InputField(optional=True, description="Recent conversations")
     prompt: str = dspy.InputField()
     images: Optional[List[Union[str, dspy.Image]]] = dspy.InputField(optional=True, description="Files from user")
     response: str = dspy.OutputField()
