@@ -1,6 +1,6 @@
 from pathlib import Path
 from app.api.database.redis_client import get_config
-from app.utils.orchestration.llm_gateway import client
+from app.models.llm_gateway import client
 
 def generate_audio(text: str):
     speech_file_path = Path(__file__).parent / "speech.mp3"

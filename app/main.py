@@ -26,8 +26,6 @@ async def lifespan(app):
     try:
         # Load models immediately (fast)
         model_manager.load_models()
-
-        print("Application startup completed successfully!")
         yield
 
     except Exception as e:
@@ -36,7 +34,6 @@ async def lifespan(app):
     finally:
         # Clean up models on shutdown
         model_manager.cleanup_models()
-        print("Application shutdown completed successfully!")
 
 app = FastAPI(lifespan=lifespan)
 

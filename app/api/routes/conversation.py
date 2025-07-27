@@ -5,7 +5,7 @@ from app.utils import build_error_response
 from app.utils.streaming import generate_response_stream
 from app.services.manage_responses import ResponseManager
 from fastapi.responses import StreamingResponse, JSONResponse
-from app.utils.audio_processing.speech_to_text import transcribe_audio
+from app.models.speech_to_text import transcribe_audio
 
 # Create a router with a common prefix and tag for all conversation-related endpoints
 router = APIRouter(prefix="/api/conversations", tags=["Conversations"])

@@ -5,7 +5,6 @@ from rich import print
 from app.schemas.message import Message
 from typing import Any, AsyncGenerator, Awaitable
 from ..manage_models.model_manager import model_manager
-from app.utils.image_processing import convert_to_dspy_image
 
 class ResponseManager:
     """Base handler for different types of response generation."""
@@ -121,10 +120,7 @@ class ResponseManager:
             summarizer = model_manager.get_model("summarizer")
             
             if input_data.images and not input_data.content:
-                images = await asyncio.gather(*[
-                    convert_to_dspy_image(image) for image in input_data.images
-                ])
-                response = await llm_responder.forward(images=images)
+                response = await llm_responder.forward(images=input_data.images)
                 summarized_context = await summarizer.forward(input=response)
             else:
                 prompt = input_data.content

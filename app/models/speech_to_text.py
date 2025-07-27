@@ -1,8 +1,8 @@
 import os
 import base64
 import tempfile
+from app.models.llm_gateway import client
 from app.api.database.redis_client import get_config
-from app.utils.orchestration.llm_gateway import client
 
 async def transcribe_audio(audio: str) -> str:
     """

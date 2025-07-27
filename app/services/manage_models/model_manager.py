@@ -1,8 +1,8 @@
 import dspy
 from typing import Dict, Any
 from app.models import RAG, LLM, Summarizer
+from app.models.llm_gateway import set_lm_configure
 from app.api.database.redis_client import get_config
-from app.utils.orchestration.llm_gateway import set_lm_configure
 
 class ModelManager:
     """Manages the lifecycle of ML models."""
@@ -22,7 +22,6 @@ class ModelManager:
 
         After successful execution, all models are stored in `self.models`.
         """
-        print("Loading LLM models...")
         
         # Set LM configuration 
         dspy.settings.configure(lm=self.lm)
@@ -31,8 +30,6 @@ class ModelManager:
         self.models["llm_responder"] = LLM(config=get_config("llm"))
         self.models["rag_responder"] = RAG(config=get_config("rag"))
         self.models["summarizer"] = Summarizer(config=get_config("summarizer"))
-        
-        print("All models loaded successfully!")
     
     def get_model(self, model_name: str) -> Any:
         """

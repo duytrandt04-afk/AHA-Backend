@@ -1,9 +1,7 @@
-import asyncio
 from rich import print
-from app.schemas.message import Message
 from typing import AsyncGenerator
+from app.schemas.message import Message
 from ..manage_responses import TextHandler, ImageHandler
-from app.utils.image_processing import convert_to_dspy_image
 
 class TextImageHandler(TextHandler, ImageHandler):
     """Handler specialized for text+image inputs."""
@@ -24,9 +22,6 @@ class TextImageHandler(TextHandler, ImageHandler):
             Exception: If classification or routing fails.
         """
         try:
-            input_data.images = await asyncio.gather(*[
-                convert_to_dspy_image(image) for image in input_data.images
-            ])
             # Route based on classification
             return await cls.handle_text_response(input_data=input_data)
 
