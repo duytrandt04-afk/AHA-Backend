@@ -22,7 +22,7 @@ class ImageHandler(ResponseManager):
             Exception: If classification or routing fails.
         """
         try:
-            return await cls.handle_llm_response(input_data=input_data.images)
+            return await cls.handle_llm_response(input_data=input_data)
         except Exception as e:
             print(f"Image response handling failed: {str(e)}")
             raise Exception(f"Image response failed: {str(e)}")
