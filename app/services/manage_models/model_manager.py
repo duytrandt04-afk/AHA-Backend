@@ -54,9 +54,7 @@ class ModelManager:
 
         Useful for graceful shutdowns or reinitialization.
         """
-        print("Cleaning up ML models...")
         self.models.clear()
-        print("ML models cleaned up!")
     
     def get_history(self):
         """
