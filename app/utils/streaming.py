@@ -23,6 +23,7 @@ async def generate_response_stream(message: Message):
             if isinstance(chunk, dspy.streaming.StreamResponse):
                 yield f"data: {chunk.chunk}\n\n"
             elif isinstance(chunk, dspy.Prediction):
+                yield f"data: final_response: {chunk.response}\n\n"
                 yield "data: [DONE]\n\n"
                 
     except ValueError as ve:

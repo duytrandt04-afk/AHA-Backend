@@ -15,7 +15,15 @@ class RAG(LLM):
         self.signature_cls = create_signature_with_doc(RAGResponse, config["instruction"])
         self.response = self.predictor_cls(self.signature_cls, temperature=self.temperature, max_tokens=self.max_tokens)
 
-    async def forward(self, context: str = None, images: Optional[List[dspy.Image]] = None, prompt: str = None, recent_conversations: str = None) -> str:
+    async def forward(
+            self, 
+            context: Optional[List[str]] = None,
+            images: Optional[List[dspy.Image]] = None, 
+            prompt: Optional[str] = None, 
+            recent_conversations: Optional[List[str]] = None,
+            files: Optional[List[str]]  = None,
+            audio: Optional[List[str]] = None
+        ) -> str:
         """
         Generate a model response using optional context, prompt, image input, and recent conversations.
 
@@ -32,9 +40,11 @@ class RAG(LLM):
             str: The generated textual response from the model.
         """
         response = await self.response.acall(
-            context=context, 
-            prompt=prompt, 
-            images=images, 
-            recent_conversations=recent_conversations
+            context=context or "",
+            prompt=prompt or [], 
+            images=images or [], 
+            recent_conversations=recent_conversations or [],
+            files=files or [],
+            audio=audio or []
         )
         return response.response

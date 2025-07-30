@@ -1,6 +1,5 @@
 import time
 import dspy
-import asyncio
 from rich import print
 from app.schemas.message import Message
 from typing import Any, AsyncGenerator, Awaitable
@@ -65,7 +64,9 @@ class ResponseManager:
             output_stream = stream_predict(
                 prompt=input_data.content, 
                 images=input_data.images, 
-                recent_conversations=input_data.recent_conversations
+                recent_conversations=input_data.recent_conversations,
+                files=input_data.files,
+                audio=input_data.audio
             )
             cls._log_execution_time(start_time, "LLM")
             return output_stream
@@ -94,7 +95,9 @@ class ResponseManager:
                 context=input_data.context, 
                 prompt=input_data.content, 
                 images=input_data.images, 
-                recent_conversations=input_data.recent_conversations
+                recent_conversations=input_data.recent_conversations,
+                files=input_data.files,
+                audio=input_data.audio
             )
             cls._log_execution_time(start_time, "RAG")
             return output_stream
@@ -119,13 +122,15 @@ class ResponseManager:
             llm_responder = model_manager.get_model("llm_responder")
             summarizer = model_manager.get_model("summarizer")
             
-            if input_data.images and not input_data.content:
-                response = await llm_responder.forward(images=input_data.images)
-                summarized_context = await summarizer.forward(input=response)
-            else:
-                prompt = input_data.content
-                summarized_context = await summarizer.forward(input=prompt)
-
+            response = await llm_responder.forward(
+                prompt=input_data.content, 
+                images=input_data.images, 
+                recent_conversations=input_data.recent_conversations,
+                files=input_data.files,
+                audio=input_data.audio
+            )
+            summarized_context = await summarizer.forward(input=response)
+            
             return summarized_context
 
         except Exception as e:

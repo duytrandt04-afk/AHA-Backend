@@ -1,4 +1,3 @@
-import asyncio
 from rich import print
 from typing import AsyncGenerator
 from app.schemas.message import Message
