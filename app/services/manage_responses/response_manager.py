@@ -4,6 +4,7 @@ from rich import print
 from app.schemas.message import Message
 from typing import Any, AsyncGenerator, Awaitable
 from ..manage_models.model_manager import model_manager
+from app.models.speech_to_text import process_diarization_segments_to_list_async
 
 class ResponseManager:
     """Base handler for different types of response generation."""
@@ -58,15 +59,18 @@ class ResponseManager:
             RuntimeError: If inference fails or model access fails.
         """
         start_time = time.time()
+        audio = None
+        if input_data.audio:
+            audio = await process_diarization_segments_to_list_async(input_data.audio) 
         try:
             llm_responder = model_manager.get_model("llm_responder")
             stream_predict = cls._create_stream_predict(llm_responder)
             output_stream = stream_predict(
                 prompt=input_data.content, 
-                images=input_data.images, 
-                recent_conversations=input_data.recent_conversations,
-                files=input_data.files,
-                audio=input_data.audio
+                images=input_data.images , 
+                recent_conversations=input_data.recent_conversations ,
+                files=input_data.files ,
+                audio=audio 
             )
             cls._log_execution_time(start_time, "LLM")
             return output_stream
@@ -127,7 +131,7 @@ class ResponseManager:
                 images=input_data.images, 
                 recent_conversations=input_data.recent_conversations,
                 files=input_data.files,
-                audio=input_data.audio
+                audio=input_data.audio 
             )
             summarized_context = await summarizer.forward(input=response)
             
