@@ -1,30 +1,28 @@
 import dspy
 from app.schemas.message import Message
-from app.services.manage_responses import TextHandler, ImageHandler, TextImageHandler
+from app.services.manage_responses import TextHandler
 
 async def generate_response_stream(message: Message):
     try:
-        # Determine appropriate handler based on message content
-        if message.content and not message.images:
-            handler = TextHandler()
-            output_stream = await handler.handle_text_response(input_data=message)
-        elif message.images and not message.content:
-            handler = ImageHandler()
-            output_stream = await handler.handle_image_response(input_data=message)
-        elif message.content and message.images:
-            handler = TextImageHandler()
-            output_stream = await handler.handle_text_image_response(input_data=message)
-        else:
-            yield f"data: ERROR - Empty message content and image\n\n"
-            return
+        full_response = ""
+        handler = TextHandler()
+        output_stream = await handler.handle_text_response(input_data=message)
         
         # Stream the response output
         async for chunk in output_stream:
             if isinstance(chunk, dspy.streaming.StreamResponse):
-                yield f"data: {chunk.chunk}\n\n"
+                full_response += str(chunk.chunk)
+                yield {
+                    "type": "chunk",
+                    "data": str(chunk.chunk),
+                    "full_response_so_far": full_response
+                }
             elif isinstance(chunk, dspy.Prediction):
-                yield f"data: final_response: {chunk.response}\n\n"
-                yield "data: [DONE]\n\n"
+                yield {
+                    "type": "done", 
+                    "data": "",
+                    "full_response": chunk.response
+                }
                 
     except ValueError as ve:
         yield f"data: ERROR - Invalid input: {str(ve)}\n\n"

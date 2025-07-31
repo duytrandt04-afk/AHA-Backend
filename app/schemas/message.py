@@ -8,4 +8,8 @@ class Message(BaseModel):
     context: Optional[List[str]] = None
     recent_conversations: Optional[List[str]] = None
     files: Optional[List[str]] = None
-    audio: Optional[List[Tuple[Any, AudioSegment]]] = None
+    audio: Optional[List[str]] = None
+    # audio: Optional[List[Tuple[Any, AudioSegment]]] = None
+    
+    class Config:
+        arbitrary_types_allowed = True

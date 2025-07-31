@@ -1,3 +1,4 @@
+import json
 import traceback
 from fastapi import APIRouter
 from app.schemas.message import Message
@@ -52,39 +53,23 @@ async def generate_title(message: Message):
     
 @router.post("/stream")
 async def stream_message(message: Message):
-    """
-    Stream a response to a user's message (text, image, or both) and update the conversation.
-
-    Args:
-        conversation_id (str): The ID of the conversation to append the response to.
-        user_id (str): The ID of the user sending the message.
-        message (Message): The message object containing text and/or image.
-
-    Returns:
-        StreamingResponse: A streamed response via Server-Sent Events (SSE).
-    """
+    """Return serialized stream chunks with full response"""
     try:
+        async def json_stream_generator():
+            async for chunk_data in generate_response_stream(message=message):
+                yield f"data: {json.dumps(chunk_data)}\n\n"
         
-        if not message.content and not message.images:
-            return build_error_response(
-                "INVALID_INPUT",
-                "Message must contain either text content or image",
-                400
-            )
-
         return StreamingResponse(
-            generate_response_stream(message=message),
+            json_stream_generator(),
             media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Cache-Control"
             }
         )
         
     except Exception as e:
-        traceback.print_exc
+        traceback.print_exc()
         return build_error_response(
             "STREAM_INITIALIZATION_FAILED",
             f"Failed to initialize message stream: {str(e)}",

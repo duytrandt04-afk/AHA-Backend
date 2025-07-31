@@ -1,9 +1,9 @@
 import dspy
-from typing import Optional, Union, List, Tuple
+from typing import Optional, Union, List
 from app.utils import create_signature_with_doc
 
 class LLMResponse(dspy.Signature):
-    recent_conversations: Optional[List[str, str]] = dspy.InputField(optional=True, description="Recent conversations")
+    recent_conversations: Optional[List[str]] = dspy.InputField(optional=True, description="Recent conversations")
     prompt: str = dspy.InputField(description="User's main prompt")
     files: Optional[List[str]] = dspy.InputField(description="Content extracted from pdf, csv, txt")
     audio: Optional[List[str]] = dspy.InputField(description="Content extracted from audio files")
