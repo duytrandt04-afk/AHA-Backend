@@ -93,6 +93,9 @@ class ResponseManager:
         """
         start_time = time.time()
         try:
+            audio = None
+            if input_data.audio:
+                audio = await process_diarization_segments_to_list_async(input_data.audio)
             rag_responder = model_manager.get_model("rag_responder")
             stream_predict = cls._create_stream_predict(rag_responder)
             output_stream = stream_predict(
@@ -101,7 +104,7 @@ class ResponseManager:
                 images=input_data.images, 
                 recent_conversations=input_data.recent_conversations,
                 files=input_data.files,
-                audio=input_data.audio
+                audio=audio
             )
             cls._log_execution_time(start_time, "RAG")
             return output_stream
@@ -123,6 +126,9 @@ class ResponseManager:
             Exception: If summarization fails.
         """
         try:
+            audio = None
+            if input_data.audio:
+                audio = await process_diarization_segments_to_list_async(input_data.audio)
             llm_responder = model_manager.get_model("llm_responder")
             summarizer = model_manager.get_model("summarizer")
             
@@ -131,7 +137,7 @@ class ResponseManager:
                 images=input_data.images, 
                 recent_conversations=input_data.recent_conversations,
                 files=input_data.files,
-                audio=input_data.audio 
+                audio=audio 
             )
             summarized_context = await summarizer.forward(input=response)
             

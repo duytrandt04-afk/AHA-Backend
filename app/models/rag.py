@@ -1,6 +1,6 @@
 import dspy
-from typing import Optional, List
 from .llm import LLM, LLMResponse
+from typing import Optional, List, Union
 from app.utils import create_signature_with_doc
 
 class RAGResponse(LLMResponse):
@@ -18,7 +18,7 @@ class RAG(LLM):
     async def forward(
             self, 
             context: Optional[List[str]] = None,
-            images: Optional[List[dspy.Image]] = None, 
+            images: Optional[List[Union[str, dspy.Image]]] = None, 
             prompt: Optional[str] = None, 
             recent_conversations: Optional[List[str]] = None,
             files: Optional[List[str]]  = None,

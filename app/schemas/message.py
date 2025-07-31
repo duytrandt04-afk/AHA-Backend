@@ -8,7 +8,7 @@ class DiarizedAudio(BaseModel):
 
 class Message(BaseModel):   
     content: Optional[str] = None
-    images: Optional[List[dspy.Image]] = None
+    images: Optional[List[Union[str, dspy.Image]]] = None
     context: Optional[List[str]] = None
     recent_conversations: Optional[List[str]] = None
     files: Optional[List[str]] = None
