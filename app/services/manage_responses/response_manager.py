@@ -10,23 +10,6 @@ class ResponseManager:
     """Base handler for different types of response generation."""
 
     @classmethod
-    def _log_execution_time(cls, start_time: float = None, process_name: str = None) -> None:
-        """
-        Log the time taken to execute a process.
-
-        Args:
-            start_time (float): The timestamp when the process started.
-            process_name (str): A descriptive name of the process (e.g., "LLM", "RAG").
-
-        Returns:
-            None
-        """
-        execution_time = time.time() - start_time
-        color = "[green]" if "RAG" in process_name or "Dynamic" in process_name else ""
-        end_color = "[/green]" if color else ""
-        print(f"{process_name} inference took {color}{execution_time:.2f} seconds{end_color}")
-
-    @classmethod
     def _create_stream_predict(cls, model: dspy.Module = None, signature_field_name: str = "response") -> Awaitable[Any]:
         """
         Wrap a DSPy module to enable streaming predictions.
@@ -58,21 +41,19 @@ class ResponseManager:
         Raises:
             RuntimeError: If inference fails or model access fails.
         """
-        start_time = time.time()
         audio = None
         if input_data.audio:
             audio = await process_diarization_segments_to_list_async(input_data.audio) 
         try:
             llm_responder = model_manager.get_model("llm_responder")
             stream_predict = cls._create_stream_predict(llm_responder)
-            output_stream = stream_predict(
+            output_stream = await llm_responder.forward(
                 prompt=input_data.content, 
                 images=input_data.images , 
                 recent_conversations=input_data.recent_conversations ,
                 files=input_data.files ,
                 audio=audio 
             )
-            cls._log_execution_time(start_time, "LLM")
             return output_stream
         except Exception as e:
             raise RuntimeError(f"Stream inference error: {str(e)}")
@@ -91,14 +72,13 @@ class ResponseManager:
         Raises:
             Exception: If retrieval or generation fails.
         """
-        start_time = time.time()
         try:
             audio = None
             if input_data.audio:
                 audio = await process_diarization_segments_to_list_async(input_data.audio)
             rag_responder = model_manager.get_model("rag_responder")
             stream_predict = cls._create_stream_predict(rag_responder)
-            output_stream = stream_predict(
+            output_stream = await rag_responder.forward(
                 context=input_data.context, 
                 prompt=input_data.content, 
                 images=input_data.images, 
@@ -106,7 +86,6 @@ class ResponseManager:
                 files=input_data.files,
                 audio=audio
             )
-            cls._log_execution_time(start_time, "RAG")
             return output_stream
         except Exception as e:
             raise Exception(f"RAG response failed: {str(e)}")

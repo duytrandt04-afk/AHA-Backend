@@ -55,18 +55,8 @@ async def generate_title(message: Message):
 async def stream_message(message: Message):
     """Return serialized stream chunks with full response"""
     try:
-        async def json_stream_generator():
-            async for chunk_data in generate_response_stream(message=message):
-                yield f"data: {json.dumps(chunk_data)}\n\n"
-        
-        return StreamingResponse(
-            json_stream_generator(),
-            media_type="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-            }
-        )
+        response = await generate_response_stream(message=message)
+        return response
         
     except Exception as e:
         traceback.print_exc()
