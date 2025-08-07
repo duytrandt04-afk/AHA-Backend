@@ -1,14 +1,16 @@
-import json
+import asyncio
+import threading
 import traceback
-from fastapi import APIRouter
 from app.schemas.message import Message
-from app.schemas.audio import Audio, Text
 from app.utils import build_error_response
+from fastapi import APIRouter, HTTPException
 from app.models.text_to_speech import generate_audio
 from app.models.speech_to_text import transcribe_audio
 from app.utils.streaming import generate_response_stream
 from app.services.manage_responses import ResponseManager
 from fastapi.responses import StreamingResponse, JSONResponse
+from app.services.real_time.realtime_client import RealtimeClient
+from app.schemas.audio import Audio, Text, RealtimeResponse, RealtimeStartRequest, StatusResponse
 
 # Create a router with a common prefix and tag for all conversation-related endpoints
 router = APIRouter(prefix="/api/conversations", tags=["Conversations"])
@@ -97,3 +99,86 @@ def text_to_speech(input: Text):
         )
     except Exception as e:
         traceback.print_exc
+
+
+# Global client instance
+realtime_client: RealtimeClient = None
+client_thread: threading.Thread = None
+
+def run_client_in_thread(client: RealtimeClient):
+    """Run the realtime client in a separate thread"""
+    try:
+        client.start()
+    except Exception as e:
+        print(f"Error running client: {e}")
+
+@router.post("/realtime/start", response_model=RealtimeResponse)
+async def start_realtime(request: RealtimeStartRequest):
+    """Start the OpenAI Realtime voice chat"""
+    global realtime_client, client_thread
+    
+    try:
+        # Check if client is already running
+        if realtime_client and realtime_client.is_active():
+            return RealtimeResponse(
+                status="already_running",
+                message="Realtime client is already active",
+                client_active=True
+            )
+        
+        # Create new client instance
+        realtime_client = RealtimeClient()
+        
+        # Start client in a separate thread
+        client_thread = threading.Thread(target=run_client_in_thread, args=(realtime_client,))
+        client_thread.daemon = True
+        client_thread.start()
+        
+        # Give it a moment to initialize
+        await asyncio.sleep(1)
+        
+        return RealtimeResponse(
+            status="success",
+            message="Realtime voice chat started successfully",
+            client_active=realtime_client.is_active()
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to start realtime client: {str(e)}")
+
+@router.post("/realtime/stop", response_model=RealtimeResponse)
+async def stop_realtime():
+    """Stop the OpenAI Realtime voice chat"""
+    global realtime_client, client_thread
+    
+    try:
+        if not realtime_client:
+            return RealtimeResponse(
+                status="not_running",
+                message="Realtime client is not running",
+                client_active=False
+            )
+        
+        # Stop the client
+        realtime_client.stop()
+        
+        # Wait for thread to finish (with timeout)
+        if client_thread and client_thread.is_alive():
+            client_thread.join(timeout=5)
+        
+        return RealtimeResponse(
+            status="success",
+            message="Realtime voice chat stopped successfully",
+            client_active=False
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to stop realtime client: {str(e)}")
+
+# Cleanup on shutdown
+@router.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup when server shuts down"""
+    global realtime_client
+    if realtime_client:
+        realtime_client.stop()

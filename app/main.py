@@ -26,6 +26,7 @@ async def lifespan(app):
     try:
         # Load models immediately (fast)
         model_manager.load_models()
+        
         yield
 
     except Exception as e:
