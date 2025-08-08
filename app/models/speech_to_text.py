@@ -122,7 +122,7 @@ async def process_diarization_segments_to_list_async(
             try:
                 audio_base64 = audiosegment_to_base64(segment_audio)
                 result_text = await transcribe_audio(audio_base64)
-                chunk = f'[ {start_time_str} -- {end_time_str} ] {speaker} : {result_text}'
+                chunk = f'[ {start_time_str} -- {end_time_str} ] : {result_text}'
                 all_results.append(chunk)
                 print(f"Transcribed: {result_text[:50]}...")
 

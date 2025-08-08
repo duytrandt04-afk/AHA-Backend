@@ -87,18 +87,11 @@ async def speech_to_text(request: Audio):
 @router.post("/text_to_speech")
 def text_to_speech(input: Text):
     try:
-        return StreamingResponse(
-            generate_audio(text=input.text),
-            media_type="audio/mpeg",
-            headers={
-                    "Cache-Control": "no-cache",
-                    "Connection": "keep-alive",
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Headers": "Cache-Control"
-                }
-        )
+        generate_audio(text=input.text)
+        return {"status": "success", "message": "Audio played successfully"}
     except Exception as e:
-        traceback.print_exc
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail="Audio generation failed")
 
 
 # Global client instance
