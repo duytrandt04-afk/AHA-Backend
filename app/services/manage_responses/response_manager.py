@@ -119,7 +119,7 @@ class ResponseManager:
                 audio=audio 
             )
             summarized_context = await summarizer.forward(input=response)
-            
+
             return summarized_context
 
         except Exception as e:

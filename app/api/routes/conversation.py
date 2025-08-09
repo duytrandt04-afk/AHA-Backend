@@ -8,7 +8,7 @@ from app.models.text_to_speech import generate_audio
 from app.models.speech_to_text import transcribe_audio
 from app.utils.streaming import generate_response_stream
 from app.services.manage_responses import ResponseManager
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from app.services.real_time.realtime_client import RealtimeClient
 from app.schemas.audio import Audio, Text, RealtimeResponse, RealtimeStartRequest, StatusResponse
 
@@ -85,13 +85,16 @@ async def speech_to_text(request: Audio):
         traceback.print_exc
         
 @router.post("/text_to_speech")
-def text_to_speech(input: Text):
-    try:
-        generate_audio(text=input.text)
-        return {"status": "success", "message": "Audio played successfully"}
-    except Exception as e:
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail="Audio generation failed")
+async def text_to_speech(input: Text):
+    if not input or not input.text:
+        return build_error_response("INVALID_INPUT", "Input text is required", 400)
+
+    # Return streaming response directly
+    return StreamingResponse(
+        generate_audio(input.text),
+        media_type="audio/mpeg",
+        headers={"Content-Disposition": 'inline; filename="speech.mp3"'}
+    )
 
 
 # Global client instance
