@@ -46,7 +46,7 @@ async def generate_title(message: Message):
         title = await ResponseManager.summarize(message)
         return JSONResponse(content={"title": title}, status_code=200)
     except Exception as e:
-        traceback.print_exc
+        traceback.print_exc()
         return build_error_response(
             "TITLE_GENERATION_FAILED",
             f"Failed to generate title: {str(e)}",
