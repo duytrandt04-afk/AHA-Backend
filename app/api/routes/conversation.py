@@ -82,7 +82,7 @@ async def speech_to_text(request: Audio):
     try:
         return await transcribe_audio(request.audio)
     except Exception as e:
-        traceback.print_exc
+        traceback.print_exc()
         
 @router.post("/text_to_speech")
 async def text_to_speech(input: Text):
