@@ -1,10 +1,10 @@
 import dspy
-from typing import Optional, Union
 from .llm import LLM, LLMResponse
+from typing import Optional, List, Union
 from app.utils import create_signature_with_doc
 
 class RAGResponse(LLMResponse):
-    context: str = dspy.InputField(description="Context retrieved from the knowledge base")
+    context: List[str] = dspy.InputField(description="Context retrieved from the knowledge base")
 
 class RAG(LLM):
     """Model to generate responses based on the retrieved context."""
@@ -15,7 +15,15 @@ class RAG(LLM):
         self.signature_cls = create_signature_with_doc(RAGResponse, config["instruction"])
         self.response = self.predictor_cls(self.signature_cls, temperature=self.temperature, max_tokens=self.max_tokens)
 
-    async def forward(self, context: str = None, image: Optional[Union[str, dspy.Image]] = None, prompt: str = None, recent_conversations: str = None) -> str:
+    async def forward(
+            self, 
+            context: Optional[List[str]] = None,
+            images: Optional[List[Union[str, dspy.Image]]] = None, 
+            prompt: Optional[str] = None, 
+            recent_conversations: Optional[List[str]] = None,
+            files: Optional[List[str]]  = None,
+            audio: Optional[List[str]] = None
+        ) -> str:
         """
         Generate a model response using optional context, prompt, image input, and recent conversations.
 
@@ -32,9 +40,10 @@ class RAG(LLM):
             str: The generated textual response from the model.
         """
         response = await self.response.acall(
-            context=context, 
-            prompt=prompt, 
-            image=image, 
-            recent_conversations=recent_conversations
+            prompt=prompt or "", 
+            images=images or [], 
+            recent_conversations=recent_conversations or [],
+            files=files or [],
+            audio=audio or []
         )
         return response.response

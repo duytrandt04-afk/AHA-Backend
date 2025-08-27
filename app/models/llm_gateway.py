@@ -1,5 +1,9 @@
 import dspy
+from openai import OpenAI
 from app.api.database.redis_client import get_config
+
+api_keys = get_config("api_keys")
+client = OpenAI(api_key=api_keys.get("OPENAI_API_KEY"))
 
 def set_lm_configure(config: dict = None):
     """
@@ -19,13 +23,11 @@ def set_lm_configure(config: dict = None):
         KeyError: If the "model" key is missing from the config dictionary.
         EnvironmentError: If required environment variables are not set.
     """
-    api_keys = get_config("api_keys")
+    
     lm = dspy.LM(
-            model=config["model"],
-            base_url=api_keys["OPEN_ROUTER_URL"],
-            api_key=api_keys["OPEN_ROUTER_API_KEY"],
+            model=config.get("model"),
+            api_key=api_keys.get("OPENAI_API_KEY"),
             cache=False,
             cache_in_memory=False,
-            track_usage=True,
         )
     return lm

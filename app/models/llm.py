@@ -1,11 +1,13 @@
 import dspy
-from typing import Optional, Union
+from typing import Optional, Union, List
 from app.utils import create_signature_with_doc
 
 class LLMResponse(dspy.Signature):
-    recent_conversations: Optional[str] = dspy.InputField(optional=True, description="Recent conversations")
-    prompt: str = dspy.InputField()
-    image: Optional[Union[str, dspy.Image]] = dspy.InputField(optional=True, description="Image from user")
+    recent_conversations: Optional[List[str]] = dspy.InputField(optional=True, description="Recent conversations")
+    prompt: str = dspy.InputField(description="User's main prompt")
+    files: Optional[List[str]] = dspy.InputField(description="Content extracted from pdf, csv, txt")
+    audio: Optional[List[str]] = dspy.InputField(description="Content extracted from audio files")
+    images: Optional[List[Union[str, dspy.Image]]] = dspy.InputField(optional=True, description="Images from user")
     response: str = dspy.OutputField()
 
 class LLM(dspy.Module):
@@ -22,7 +24,15 @@ class LLM(dspy.Module):
 
         self.response = self.predictor_cls(self.signature_cls, temperature=self.temperature, max_tokens=self.max_tokens)
 
-    async def forward(self, image: Optional[dspy.Image] = None, prompt: str = None, recent_conversations: str = None) -> str:
+    async def forward(
+            self, 
+            images: Optional[List[Union[str, dspy.Image]]] = None, 
+            prompt: Optional[str] = None, 
+            recent_conversations: Optional[List[str]] = None,
+            files: Optional[List[str]]  = None,
+            audio: Optional[List[str]] = None
+        ) -> str:
+
         """
         Generate a model response based on the provided prompt, image, and optional conversation history.
 
@@ -37,5 +47,11 @@ class LLM(dspy.Module):
         Returns:
             str: The generated response from the model.
         """
-        response = await self.response.acall(prompt=prompt, image=image, recent_conversations=recent_conversations)
+        response = await self.response.acall(
+            prompt=prompt or "", 
+            images=images or [], 
+            recent_conversations=recent_conversations or [],
+            files=files or [],
+            audio=audio or []
+        )
         return response.response
