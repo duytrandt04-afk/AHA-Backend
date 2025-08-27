@@ -8,9 +8,7 @@ import websocket
 from .config import Config
 from .function_handlers import FunctionHandler
 
-# Set up SOCKS5 proxy
-socket.socket = socks.socksocket
-
+# Proxy setup is now handled per-connection, not globally.
 class WebSocketClient:
     def __init__(self, audio_manager):
         self.config = Config()
