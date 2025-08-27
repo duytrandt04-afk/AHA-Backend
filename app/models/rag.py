@@ -40,8 +40,7 @@ class RAG(LLM):
             str: The generated textual response from the model.
         """
         response = await self.response.acall(
-            context=context or "",
-            prompt=prompt or [], 
+            prompt=prompt or "", 
             images=images or [], 
             recent_conversations=recent_conversations or [],
             files=files or [],
