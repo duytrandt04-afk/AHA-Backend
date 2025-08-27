@@ -1,6 +1,7 @@
 import dspy
 from app.schemas.message import Message
 from app.services.manage_responses import TextHandler
+import logging
 
 async def generate_response_stream(message: Message):
     try:
@@ -9,12 +10,14 @@ async def generate_response_stream(message: Message):
         return {"response": output_stream}
                 
     except ValueError as ve:
+        logging.exception("ValueError in generate_response_stream")
         return {
             "type": "error",
-            "message": f"Invalid input: {str(ve)}"
+            "message": "Invalid input"
         }
     except Exception as e:
+        logging.exception("Exception in generate_response_stream")
         return {
             "type": "error",
-            "message": f"Stream processing failed: {str(e)}"
+            "message": "An internal error occurred during stream processing"
         }
