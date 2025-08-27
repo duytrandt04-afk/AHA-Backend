@@ -171,10 +171,12 @@ async def stop_realtime():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to stop realtime client: {str(e)}")
 
-# Cleanup on shutdown
-@router.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup when server shuts down"""
+# Cleanup function for use in app lifespan
+def cleanup_realtime_client():
+    """
+    Cleanup function to stop the realtime client.
+    Should be called during application shutdown (e.g., in FastAPI lifespan context).
+    """
     global realtime_client
     if realtime_client:
         realtime_client.stop()
