@@ -1,15 +1,17 @@
-# Use the official Python 3.11 slim image as the base
+# Use the official Python 3.11 image as the base
 FROM python:3.11
 
 # Install system dependencies required for PyAudio and other packages
-RUN apt-get update && apt-get install -y \
-    gcc \                # C compiler for building Python packages \
-    g++ \                # C++ compiler \
-    portaudio19-dev \    # Required for PyAudio \
-    python3-dev \        # Python headers for building some packages \
-    pkg-config \         # Helper for compiling C extensions \
-    && rm -rf /var/lib/apt/lists/*  # Clean up apt cache to reduce image size
 
+# Install system dependencies required for PyAudio and other packages
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    portaudio19-dev \
+    python3-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+    
 # Set the working directory inside the container
 WORKDIR /app
 
