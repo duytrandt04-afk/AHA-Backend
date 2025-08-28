@@ -178,7 +178,7 @@ typing_extensions==4.14.1
 ujson==5.10.0
 
 # Async web server
-uv==0.8.4
+uv==0.8.6
 uvicorn==0.35.0
 
 # WebSocket client
