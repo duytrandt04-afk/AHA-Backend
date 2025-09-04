@@ -46,7 +46,6 @@ class ResponseManager:
             audio = await process_diarization_segments_to_list_async(input_data.audio) 
         try:
             llm_responder = model_manager.get_model("llm_responder")
-            stream_predict = cls._create_stream_predict(llm_responder)
             output_stream = await llm_responder.forward(
                 prompt=input_data.content, 
                 images=input_data.images , 
@@ -77,7 +76,6 @@ class ResponseManager:
             if input_data.audio:
                 audio = await process_diarization_segments_to_list_async(input_data.audio)
             rag_responder = model_manager.get_model("rag_responder")
-            stream_predict = cls._create_stream_predict(rag_responder)
             output_stream = await rag_responder.forward(
                 context=input_data.context, 
                 prompt=input_data.content, 
