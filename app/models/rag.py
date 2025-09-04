@@ -41,7 +41,8 @@ class RAG(LLM):
         """
         response = await self.response.acall(
             prompt=prompt or "", 
-            images=images or [], 
+            images=images or [],
+            context=context or [], 
             recent_conversations=recent_conversations or [],
             files=files or [],
             audio=audio or []
