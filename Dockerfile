@@ -29,4 +29,4 @@ COPY . .
 EXPOSE 8000
 
 # Start the FastAPI app with Uvicorn, using the PORT environment variable and 4 workers
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT} --workers 4
+CMD uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
