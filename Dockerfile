@@ -25,9 +25,6 @@ RUN pip install uv \
 # Copy the rest of the application code into the container
 COPY . .
 
-# Set the default port for the application (Cloud Run will override this)
-ENV PORT=8000
-
 # Expose the port for local development and container linking
 EXPOSE 8000
 
